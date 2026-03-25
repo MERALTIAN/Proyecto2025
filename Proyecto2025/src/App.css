@@ -4,7 +4,23 @@
   padding: 2rem;
   text-align: center;
 }
+.margen-superior-main{
+  margin-top: 50px;
+  padding: 20px;
+}
 
+.color-navdar {
+  background-color: aqua !important;
+  background-image: linear-gradient(90deg, #121b96 0%, #2889b6 50%, #2697cc 100%);
+}
+
+.color-texto-marca {
+  color: #121b96 !important;
+  font-size: 18px;
+}
+.boton-ancho-auto {
+  width: auto;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
