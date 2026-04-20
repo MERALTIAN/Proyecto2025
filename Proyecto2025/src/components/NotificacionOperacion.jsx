@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 
-const NotificacionOperacion = ({mostrar, mensaje, tipo, onClose}) => {
-    const [visible, setVisible] = useState(mostrar);
+const NotificacionOperacion = ({ visible, mostrar, mensaje, tipo, setVisible, onCerrar, onClose }) => {
+    const [show, setShow] = useState(visible ?? mostrar);
 
     useEffect(() => {
-        setVisible(mostrar);
-    }, [mostrar]);
+        setShow(visible ?? mostrar);
+    }, [visible, mostrar]);
+
+    const handleClose = () => {
+        setShow(false);
+        setVisible?.(false);
+        onCerrar?.();
+        onClose?.();
+    };
 
     const fechaLocal = () => {
         const f = new Date();
@@ -19,11 +26,8 @@ const NotificacionOperacion = ({mostrar, mensaje, tipo, onClose}) => {
      return (
   <ToastContainer position="top-center" className="p-2">
     <Toast
-      onClose={() => {
-        setVisible(false);
-        onCerrar();
-      }}
-      show={visible}
+      onClose={handleClose}
+      show={show}
       delay={2500}
       autohide
       bg={tipo === 'exito' ? 'success' : tipo === 'advertencia' ? 'warning' : 'danger'}
