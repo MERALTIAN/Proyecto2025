@@ -70,7 +70,7 @@ const Categorias = () => {
             const { data, error } = await supabase
                 .from("categorias")
                 .select("*")
-                .order("id_Categoria", { ascending: true });
+                .order('"id_Categoria"', { ascending: true });
 
             if (error) {
                 console.error("Error al cargar categorías:", error.message);
