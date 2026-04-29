@@ -6,9 +6,11 @@ import ModalRegistroProducto from "../producto/ModalRegistroProducto";
 import ModalEdicionProducto from "../producto/ModalEdicionProducto";
 import ModalEliminacionProducto from "../producto/ModalEliminacionProducto";
 import TarjetasProductos from "../producto/TarjetasProductos";
+import TablaProductos from "../producto/TablaProductos";
 
 import NotificacionOperacion from "../components/NotificacionOperacion";
 import CuadroBusquedas from "../components/ordenamiento/CuadroBusquedas";
+import Paginacion from "../components/ordenamiento/Paginacion";
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -16,6 +18,9 @@ const Productos = () => {
   const [categorias, setCategorias] = useState([]);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
+
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(5);
 
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
@@ -358,12 +363,22 @@ const Productos = () => {
 
       setProductosFiltrados(filtrados);
     }
+
+    setPaginaActual(1);
   }, [textoBusqueda, productos]);
 
   useEffect(() => {
     cargarProductos();
     cargarCategorias();
   }, []);
+
+  const indiceUltimoRegistro = paginaActual * registrosPorPagina;
+  const indicePrimerRegistro = indiceUltimoRegistro - registrosPorPagina;
+
+  const productosPaginados = productosFiltrados.slice(
+    indicePrimerRegistro,
+    indiceUltimoRegistro
+  );
 
   return (
     <Container className="mt-5">
@@ -382,7 +397,8 @@ const Productos = () => {
 
             <small className="text-secondary">
               {productosFiltrados.length}{" "}
-              {productosFiltrados.length === 1 ? "producto" : "productos"} disponibles
+              {productosFiltrados.length === 1 ? "producto" : "productos"}{" "}
+              disponibles
             </small>
           </div>
 
@@ -424,12 +440,39 @@ const Productos = () => {
           )}
 
           {productosFiltrados.length > 0 ? (
-            <TarjetasProductos
-              productos={productosFiltrados}
-              categorias={categorias}
-              abrirModalEdicion={abrirModalEdicion}
-              abrirModalEliminacion={abrirModalEliminacion}
-            />
+            <>
+              <Row>
+                <Col xs={12} className="d-none d-lg-block">
+                  <div className="product-table-card mb-4 p-4 shadow-sm rounded-4 bg-white border">
+                    <TablaProductos
+                      productos={productosPaginados}
+                      categorias={categorias}
+                      abrirModalEdicion={abrirModalEdicion}
+                      abrirModalEliminacion={abrirModalEliminacion}
+                    />
+                  </div>
+                </Col>
+
+                <Col xs={12} className="d-block d-lg-none">
+                  <div className="product-table-card mb-4 p-0">
+                    <TarjetasProductos
+                      productos={productosPaginados}
+                      categorias={categorias}
+                      abrirModalEdicion={abrirModalEdicion}
+                      abrirModalEliminacion={abrirModalEliminacion}
+                    />
+                  </div>
+                </Col>
+              </Row>
+
+              <Paginacion
+                registrosPorPagina={registrosPorPagina}
+                totalRegistros={productosFiltrados.length}
+                paginaActual={paginaActual}
+                establecerPaginaActual={setPaginaActual}
+                establecerRegistrosPorPagina={setRegistrosPorPagina}
+              />
+            </>
           ) : (
             <Row className="justify-content-center">
               <Col lg={8} className="text-center py-5">
