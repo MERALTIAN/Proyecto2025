@@ -3,16 +3,12 @@ import { Card, Row, Col, Spinner, Button } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const TarjetaCategoria = ({
-  categorias,
+  categorias = [],
   abrirModalEdicion,
   abrirModalEliminacion,
 }) => {
-  const [cargando, setCargando] = useState(true);
+  const cargando = categorias == null;
   const [idTarjetaActiva, setIdTarjetaActiva] = useState(null);
-
-  useEffect(() => {
-    setCargando(!(categorias && categorias.length > 0));
-  }, [categorias]);
 
   const manejarTeclaEscape = useCallback((evento) => {
     if (evento.key === "Escape") setIdTarjetaActiva(null);

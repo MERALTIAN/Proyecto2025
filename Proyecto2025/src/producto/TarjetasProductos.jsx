@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Card, Row, Col, Badge, Button, Spinner } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -8,16 +8,12 @@ const TarjetasProductos = ({
   abrirModalEdicion,
   abrirModalEliminacion,
 }) => {
-  const [cargando, setCargando] = useState(true);
+  const cargando = productos.length === 0;
   const [idTarjetaActiva, setIdTarjetaActiva] = useState(null);
-
-  useEffect(() => {
-    setCargando(!(productos && productos.length > 0));
-  }, [productos]);
 
   const manejarTeclaEscape = useCallback((evento) => {
     if (evento.key === "Escape") setIdTarjetaActiva(null);
-  }, []);
+  }, [setIdTarjetaActiva]);
 
   useEffect(() => {
     window.addEventListener("keydown", manejarTeclaEscape);

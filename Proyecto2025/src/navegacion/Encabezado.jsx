@@ -1,16 +1,12 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo.png";
 
 function Encabezado() {
   const navigate = useNavigate();
-  const location = useLocation();
-
+  const { tienePermiso, logout, usuario, cargando } = useAuth();
   const [menuAbierto, setMenuAbierto] = useState(false);
-
-  const [usuario, setUsuario] = useState(
-    localStorage.getItem("usuario-supabase") || null
-  );
 
   const estiloHeader = {
     position: "fixed",
@@ -81,23 +77,8 @@ function Encabezado() {
     textAlign: "left",
   };
 
-  useEffect(() => {
-    const handleStorage = () => {
-      setUsuario(localStorage.getItem("usuario-supabase") || null);
-    };
-
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
-
-  useEffect(() => {
-    setUsuario(localStorage.getItem("usuario-supabase") || null);
-    setMenuAbierto(false);
-  }, [location]);
-
-  const cerrarSesion = () => {
-    localStorage.removeItem("usuario-supabase");
-    setUsuario(null);
+  const cerrarSesion = async () => {
+    await logout();
     setMenuAbierto(false);
     navigate("/login");
   };
@@ -105,6 +86,8 @@ function Encabezado() {
   const cerrarMenu = () => {
     setMenuAbierto(false);
   };
+
+  if (cargando) return null;
 
   return (
     <header style={estiloHeader}>
@@ -124,21 +107,41 @@ function Encabezado() {
       <nav style={estiloMenu}>
         {usuario ? (
           <>
-            <Link to="/" style={estiloLink} onClick={cerrarMenu}>
-              Inicio
-            </Link>
+            {tienePermiso("ver_inicio") && (
+              <Link to="/" style={estiloLink} onClick={cerrarMenu}>
+                Inicio
+              </Link>
+            )}
 
-            <Link to="/catalogo" style={estiloLink} onClick={cerrarMenu}>
-              Catálogo
-            </Link>
+            {tienePermiso("ver_catalogo") && (
+              <Link to="/catalogo" style={estiloLink} onClick={cerrarMenu}>
+                Catálogo
+              </Link>
+            )}
 
-            <Link to="/productos" style={estiloLink} onClick={cerrarMenu}>
-              Productos
-            </Link>
+            {tienePermiso("ver_productos") && (
+              <Link to="/productos" style={estiloLink} onClick={cerrarMenu}>
+                Productos
+              </Link>
+            )}
 
-            <Link to="/categorias" style={estiloLink} onClick={cerrarMenu}>
-              Categorías
-            </Link>
+            {tienePermiso("ver_categorias") && (
+              <Link to="/categorias" style={estiloLink} onClick={cerrarMenu}>
+                Categorías
+              </Link>
+            )}
+
+            {tienePermiso("ver_empleados") && (
+              <Link to="/empleados" style={estiloLink} onClick={cerrarMenu}>
+                Empleados
+              </Link>
+            )}
+
+            {tienePermiso("ver_permisos") && (
+              <Link to="/permisos" style={estiloLink} onClick={cerrarMenu}>
+                Permisos
+              </Link>
+            )}
 
             <button style={estiloBotonCerrar} onClick={cerrarSesion}>
               Cerrar sesión

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Table, Spinner, Button, Image, Badge } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -8,11 +8,7 @@ const TablaProductos = ({
   abrirModalEdicion,
   abrirModalEliminacion,
 }) => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(!(productos && productos.length > 0));
-  }, [productos]);
+  const loading = productos.length === 0;
 
   const categoriaMap = new Map(
     categorias.map((categoria) => [

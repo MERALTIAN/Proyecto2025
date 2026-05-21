@@ -8,7 +8,8 @@ const FormularioLogin = ({
   error, 
   setUsuario, 
   setContrasena, 
-  iniciarSesion 
+  iniciarSesion,
+  cargando
 }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,8 +66,9 @@ const FormularioLogin = ({
             type="submit"
             variant="primary" 
             className="w-100 mt-3 py-2 fw-bold"
+            disabled={cargando}
           >
-            Iniciar Sesión
+            {cargando ? "Iniciando sesión..." : "Iniciar Sesión"}
           </Button>
         </Form>
       </Card.Body>

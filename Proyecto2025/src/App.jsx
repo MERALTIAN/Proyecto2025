@@ -4,6 +4,8 @@ import Login from "./views/Login";
 import Productos from "./views/Productos";
 import Categorias from "./views/Categorias";
 import Catalogo from "./views/Catalogo";
+import Empleados from "./views/Empleados";
+import Permisos from "./views/Permisos";
 import Pagina404 from "./views/Pagina404";
 import Encabezado from "./navegacion/Encabezado";
 import RutaProtegida from "./rutas/RutaProtegida";
@@ -43,6 +45,23 @@ function App() {
           element={
             <RutaProtegida>
               <Catalogo />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/empleados"
+          element={
+            <RutaProtegida>
+              <Empleados />
+            </RutaProtegida>
+          }
+        />
+        {/* NUEVA RUTA */}
+        <Route
+          path="/permisos"
+          element={
+            <RutaProtegida>
+              <Permisos />
             </RutaProtegida>
           }
         />

@@ -141,6 +141,16 @@ const Catalogo = () => {
         </Row>
       )}
 
+      {error && (
+        <Row className="mb-3">
+          <Col>
+            <Alert variant="danger" className="text-center">
+              {error}
+            </Alert>
+          </Col>
+        </Row>
+      )}
+
       {!cargando && productosFiltrados.length === 0 && (
         <Alert variant="info" className="text-center">
           <i className="bi bi-info-circle me-2"></i>
