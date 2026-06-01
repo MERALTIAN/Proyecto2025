@@ -6,7 +6,7 @@ import CuadroBusquedas from "../components/ordenamiento/CuadroBusquedas";
 import Paginacion from "../components/ordenamiento/Paginacion";
 import TablaVentas from "../components/ventas/TablaVentas";
 import TarjetaVenta from "../components/ventas/TarjetaVenta";
-import ModalVenta from "../components/ventas/ModalVenta";
+import FormularioVenta from "../components/ventas/FormularioVenta";
 import ModalEliminacionVenta from "../components/ventas/ModalEliminacionVenta";
 
 const Ventas = () => {
@@ -43,7 +43,7 @@ const Ventas = () => {
       const [c, e, p] = await Promise.all([
         supabase.from("clientes").select("*"),
         supabase.from("empleados").select("*"),
-        supabase.from("productos").select("*")
+        supabase.from("Productos").select("*")
       ]);
       console.log("[DEBUG] cargarDatosAuxiliares -> clientesResp:", c);
       console.log("[DEBUG] cargarDatosAuxiliares -> empleadosResp:", e);
@@ -58,41 +58,25 @@ const Ventas = () => {
     }
   };
 
-  const cargarVentas = async (productosCargados = []) => {
+  const cargarVentas = async () => {
     try {
       setCargando(true);
-      const [ventasResp, detallesResp] = await Promise.all([
-        supabase
-          .from("ventas")
-          .select(`
-            *,
-            clientes (id_cliente, nombre_cliente, apellido_cliente),
-            empleados (id_empleado, nombre_empleado, apellido_empleado)
-          `)
-          .order("fecha_venta", { ascending: false }),
-        supabase.from("detalles_ventas").select("*")
-      ]);
+      const { data, error } = await supabase
+        .from("ventas")
+        .select(`
+          *,
+          clientes (nombre_cliente, apellido_cliente),
+          empleados (nombre_empleado, apellido_empleado)
+        `)
+        .order("fecha_venta", { ascending: false });
 
-      if (ventasResp.error || detallesResp.error) {
-        const error = ventasResp.error || detallesResp.error;
-        console.error("Error al cargar ventas:", error);
+      if (error) {
+        console.error("Error al cargar ventas:", error, error?.message, error?.details, error?.hint);
         setToast({ mostrar: true, mensaje: "Error al cargar ventas", tipo: "error" });
         return;
       }
 
-      const detallesData = detallesResp.data || [];
-      const ventasConDetalles = (ventasResp.data || []).map((venta) => ({
-        ...venta,
-        detalles_ventas: detallesData
-          .filter((detalle) => detalle.id_venta === venta.id_venta)
-          .map((detalle) => ({
-            ...detalle,
-            productos: productosCargados.find((prod) => prod.id_producto === detalle.id_producto) || null,
-          })),
-      }));
-
-      console.log("[DEBUG] cargarVentas -> data:", ventasConDetalles);
-      setVentas(ventasConDetalles);
+      setVentas(data || []);
     } catch (err) {
       console.error(err);
       setToast({ mostrar: true, mensaje: "Error inesperado al cargar ventas", tipo: "error" });
@@ -103,8 +87,8 @@ const Ventas = () => {
 
   useEffect(() => {
     const init = async () => {
-      const { productos: productosCargados } = await cargarDatosAuxiliares();
-      await cargarVentas(productosCargados);
+      await cargarDatosAuxiliares();
+      await cargarVentas();
     };
 
     init();
@@ -212,15 +196,16 @@ const Ventas = () => {
 
   const agregarDetalle = (producto, cantidad) => {
     if (!producto || !cantidad) return;
+    const productoId = producto.id_producto ?? producto.id_Producto;
     setDetalles(prev => {
-      const existe = prev.find(d => d.id_producto === producto.id_producto);
+      const existe = prev.find(d => d.id_producto === productoId);
       if (existe) {
         return prev.map(d =>
-          d.id_producto === producto.id_producto ? { ...d, cantidad: d.cantidad + cantidad } : d
+          d.id_producto === productoId ? { ...d, cantidad: d.cantidad + cantidad } : d
         );
       }
       return [...prev, {
-        id_producto: producto.id_producto,
+        id_producto: productoId,
         nombre_producto: producto.nombre_producto,
         precio: producto.precio_venta,
         cantidad
@@ -410,7 +395,7 @@ const Ventas = () => {
         />
       )}
 
-      <ModalVenta
+      <FormularioVenta
         mostrar={mostrarFormulario}
         setMostrar={setMostrarFormulario}
         clientes={clientes}

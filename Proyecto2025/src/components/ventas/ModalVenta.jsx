@@ -65,22 +65,24 @@ const ModalVenta = ({
     [empleados]
   );
 
+  const opcionesProductos = useMemo(() => {
+    return productos.map((p) => ({
+      id: p.id_producto ?? p.id_Producto ?? p.id,
+      label: `${p.nombre_producto || p.nombre_Producto || "Producto sin nombre"} - C$${p.precio_venta ?? p.precio ?? 0}`,
+      data: p,
+    }));
+  }, [productos]);
+
   const cargarProductos = useMemo(
     () => (inputValue) => {
       const search = (inputValue || "").toLowerCase();
       return Promise.resolve(
-        productos
-          .filter((p) =>
-            `${p.nombre_producto || ""}`.toLowerCase().includes(search)
-          )
-          .map((p) => ({
-            value: p.id_producto,
-            label: `${p.nombre_producto} - C$${p.precio_venta}`,
-            data: p,
-          }))
+        opcionesProductos.filter((option) =>
+          option.label.toLowerCase().includes(search)
+        )
       );
     },
-    [productos]
+    [opcionesProductos]
   );
 
   const handleAgregar = () => {
@@ -172,17 +174,34 @@ const ModalVenta = ({
                   <Col xs={12} lg={7}>
                     <Form.Group>
                       <Form.Label>Producto</Form.Label>
-                      <AsyncSelect
-                        cacheOptions
-                        defaultOptions
-                        loadOptions={cargarProductos}
-                        value={productoSeleccionado}
-                        onChange={(selected) => setProductoSeleccionado(selected || null)}
-                        placeholder="Selecciona un producto"
-                        isClearable
-                        menuPlacement="auto"
-                        noOptionsMessage={() => "No se encontraron productos"}
-                      />
+                      <Form.Select
+                        value={productoSeleccionado?.id ?? ""}
+                        onChange={(e) => {
+                          const id = e.target.value;
+                          const opcion = opcionesProductos.find((opt) => opt.id.toString() === id);
+                          setProductoSeleccionado(opcion || null);
+                        }}
+                      >
+                        <option value="" disabled>
+                          Selecciona un producto
+                        </option>
+                        {opcionesProductos.length > 0 ? (
+                          opcionesProductos.map((opcion) => (
+                            <option key={opcion.id} value={opcion.id}>
+                              {opcion.label}
+                            </option>
+                          ))
+                        ) : (
+                          <option value="" disabled>
+                            No hay productos disponibles
+                          </option>
+                        )}
+                      </Form.Select>
+                      <Form.Text className="text-muted">
+                        {opcionesProductos.length > 0
+                          ? `Productos disponibles: ${opcionesProductos.length}`
+                          : "No se cargaron productos. Revisa tu base de datos."}
+                      </Form.Text>
                     </Form.Group>
                   </Col>
 
