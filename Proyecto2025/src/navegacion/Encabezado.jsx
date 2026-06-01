@@ -137,6 +137,18 @@ function Encabezado() {
               </Link>
             )}
 
+            {tienePermiso("ver_clientes") && (
+              <Link to="/clientes" style={estiloLink} onClick={cerrarMenu}>
+                Clientes
+              </Link>
+            )}
+
+            {tienePermiso("ver_ventas") && (
+              <Link to="/ventas" style={estiloLink} onClick={cerrarMenu}>
+                Ventas
+              </Link>
+            )}
+
             {tienePermiso("ver_permisos") && (
               <Link to="/permisos" style={estiloLink} onClick={cerrarMenu}>
                 Permisos

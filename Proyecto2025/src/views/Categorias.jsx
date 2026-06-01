@@ -220,6 +220,69 @@ const Categorias = () => {
         }
     };
 
+    const generarPDFCategoria = (categoria) => {
+        const id = categoria.id_Categoria ?? categoria.id_categoria;
+        const escapePdfText = (text) =>
+            String(text)
+                .replace(/\\/g, "\\\\")
+                .replace(/\(/g, "\\(")
+                .replace(/\)/g, "\\)");
+
+        const lines = [
+            `ID: ${id}`,
+            `Nombre: ${categoria.nombre_categoria}`,
+            `Descripción: ${categoria.descripcion_categoria}`,
+        ];
+
+        const content = [
+            "BT\n",
+            "/F1 12 Tf\n",
+            "72 720 Td\n",
+            lines
+                .map((line, index) => `(${escapePdfText(line)}) Tj\n${index < lines.length - 1 ? "0 -18 Td\n" : ""}`)
+                .join(""),
+            "ET\n",
+        ].join("");
+
+        const part1 = "%PDF-1.3\n";
+        const part2 = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+        const part3 = "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
+        const part4 = "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>\nendobj\n";
+        const part5Header = `4 0 obj\n<< /Length ${content.length} >>\nstream\n`;
+        const part5Footer = `endstream\nendobj\n`;
+        const part6 = "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n";
+
+        const objects = [part1, part2, part3, part4, part5Header, content, part5Footer, part6];
+        let offset = 0;
+        const positions = [];
+
+        for (let i = 1; i < objects.length; i += 1) {
+            offset += new TextEncoder().encode(objects[i - 1]).length;
+            positions.push(offset);
+        }
+
+        const pdfBody = objects.join("");
+        const xref = [
+            "xref\n",
+            "0 6\n",
+            "0000000000 65535 f \n",
+            positions.map((pos) => `${pos.toString().padStart(10, "0")} 00000 n \n`).join(""),
+        ].join("");
+
+        const startxref = new TextEncoder().encode(pdfBody).length;
+        const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${startxref}\n%%EOF\n`;
+        const pdfBlob = new Blob([pdfBody, xref, trailer], { type: "application/pdf" });
+
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `categoria_${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="container category-page mt-5">
             <div className="category-header-card mb-4 p-4 shadow-sm rounded-4 bg-white border">
@@ -288,6 +351,7 @@ const Categorias = () => {
                                         categorias={categoriasPaginadas}
                                         abrirModalEdicion={abrirModalEdicion}
                                         abrirModalEliminacion={abrirModalEliminacion}
+                                        generarPDFCategoria={generarPDFCategoria}
                                     />
                                 </div>
                             </Col>

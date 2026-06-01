@@ -1,7 +1,7 @@
 import React from "react";
 import { Form, InputGroup } from "react-bootstrap";
 
-const CuadroBusquedas = ({ textoBusqueda, manejarCambioBusqueda }) => {
+const CuadroBusquedas = ({ textoBusqueda, manejarCambioBusqueda, placeholder = "Buscar..." }) => {
   return (
     <InputGroup
       style={{ width: "100%", borderRadius: "0.375rem" }}
@@ -13,7 +13,7 @@ const CuadroBusquedas = ({ textoBusqueda, manejarCambioBusqueda }) => {
 
       <Form.Control
         type="text"
-        placeholder="Buscar..."
+        placeholder={placeholder}
         value={textoBusqueda}
         onChange={manejarCambioBusqueda}
       />

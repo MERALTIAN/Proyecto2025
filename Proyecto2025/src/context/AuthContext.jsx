@@ -16,6 +16,8 @@ export const AuthProvider = ({ children }) => {
     ver_productos: true,
     ver_categorias: true,
     ver_empleados: true,
+    ver_clientes: true,
+    ver_ventas: true,
     ver_permisos: true,
     administrar_sistema: true,
   } : {});
@@ -51,6 +53,8 @@ export const AuthProvider = ({ children }) => {
         ver_productos: true,
         ver_categorias: true,
         ver_empleados: true,
+        ver_clientes: true,
+        ver_ventas: true,
         ver_permisos: true,
         administrar_sistema: true,
       });

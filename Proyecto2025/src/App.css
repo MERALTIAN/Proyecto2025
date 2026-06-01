@@ -102,6 +102,69 @@
   padding: 2em;
 }
 
+.tarjeta-cliente-contenedor,
+.tarjeta-venta-contenedor {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.tarjeta-cliente-contenedor:hover,
+.tarjeta-venta-contenedor:hover {
+  transform: translateY(-1px);
+}
+
+.tarjeta-cliente-cuerpo,
+.tarjeta-venta-cuerpo {
+  transition: opacity 150ms ease;
+}
+
+.tarjeta-cliente-cuerpo-activo,
+.tarjeta-venta-cuerpo-activo {
+  opacity: 0.28;
+  pointer-events: none;
+  background-color: rgba(248, 249, 250, 0.92);
+}
+
+.tarjeta-cliente-cuerpo-inactivo,
+.tarjeta-venta-cuerpo-inactivo {
+  opacity: 1;
+}
+
+.tarjeta-cliente-placeholder-imagen,
+.tarjeta-venta-placeholder-imagen {
+  height: 50px;
+  width: 50px;
+}
+
+.tarjeta-cliente-capa,
+.tarjeta-venta-capa {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(6px);
+  padding: 12px;
+}
+
+.tarjeta-cliente-botones-capa,
+.tarjeta-venta-botones-capa {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+  min-width: 240px;
+}
+
+.tarjeta-cliente-botones-capa .btn,
+.tarjeta-venta-botones-capa .btn {
+  min-width: 44px;
+}
+
 .read-the-docs {
   color: #888;
 }
