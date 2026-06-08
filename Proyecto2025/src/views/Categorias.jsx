@@ -63,6 +63,29 @@ const Categorias = () => {
         setMostrarModalEliminacion(true);
     };
 
+    // --- NUEVA FUNCIÓN: COPIAR CATEGORÍA ---
+    const copiarCategoria = async (categoria) => {
+        const texto = `
+ID: ${categoria.id_Categoria ?? categoria.id_categoria}
+Nombre: ${categoria.nombre_categoria}
+Descripción: ${categoria.descripcion_categoria}
+        `;
+
+        try {
+            await navigator.clipboard.writeText(texto);
+            setMensajeToast("Categoría copiada al portapapeles.");
+            setTipoToast("exito");
+            setMostrarToast(true);
+            setTimeout(() => setMostrarToast(false), 2000);
+        } catch (error) {
+            console.error("Error al copiar:", error);
+            setMensajeToast("Error al copiar la categoría.");
+            setTipoToast("error");
+            setMostrarToast(true);
+            setTimeout(() => setMostrarToast(false), 2000);
+        }
+    };
+
     // --- MÉTODO PARA CARGAR DATOS ---
     const cargarCategorias = async () => {
         try {
@@ -352,6 +375,7 @@ const Categorias = () => {
                                         abrirModalEdicion={abrirModalEdicion}
                                         abrirModalEliminacion={abrirModalEliminacion}
                                         generarPDFCategoria={generarPDFCategoria}
+                                        copiarCategoria={copiarCategoria}
                                     />
                                 </div>
                             </Col>
@@ -362,6 +386,7 @@ const Categorias = () => {
                                         categorias={categoriasPaginadas}
                                         abrirModalEdicion={abrirModalEdicion}
                                         abrirModalEliminacion={abrirModalEliminacion}
+                                        copiarCategoria={copiarCategoria}
                                     />
                                 </div>
                             </Col>

@@ -7,6 +7,8 @@ const TablaProductos = ({
   categorias = [],
   abrirModalEdicion,
   abrirModalEliminacion,
+  copiarProducto,
+  generarQRImagen,
 }) => {
   const loading = productos.length === 0;
 
@@ -94,10 +96,31 @@ const TablaProductos = ({
 
               <td className="text-center">
                 <Button
+                  variant="outline-info"
+                  size="sm"
+                  className="me-1"
+                  onClick={() => copiarProducto(producto)}
+                  title="Copiar producto"
+                >
+                  <i className="bi bi-clipboard"></i>
+                </Button>
+
+                <Button
+                  variant="outline-success"
+                  size="sm"
+                  className="me-1"
+                  onClick={() => generarQRImagen(producto)}
+                  title="Generar QR"
+                >
+                  <i className="bi bi-qr-code"></i>
+                </Button>
+
+                <Button
                   variant="outline-warning"
                   size="sm"
                   className="me-1"
                   onClick={() => abrirModalEdicion(producto)}
+                  title="Editar producto"
                 >
                   <i className="bi bi-pencil"></i>
                 </Button>
@@ -106,6 +129,7 @@ const TablaProductos = ({
                   variant="outline-danger"
                   size="sm"
                   onClick={() => abrirModalEliminacion(producto)}
+                  title="Eliminar producto"
                 >
                   <i className="bi bi-trash"></i>
                 </Button>

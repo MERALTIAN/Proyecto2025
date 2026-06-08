@@ -43,6 +43,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
+    const emailNormalizado = email.trim().toLowerCase();
+
     if (DEV_BYPASS_AUTH) {
       // Simular login exitoso en modo desarrollo
       localStorage.setItem('usuario-supabase', DEV_USER.email);
@@ -62,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
+      email: emailNormalizado,
       password,
     });
 
@@ -76,12 +78,12 @@ export const AuthProvider = ({ children }) => {
       const { data: empleado, error: empError } = await supabase
         .from('empleados')
         .select('tipo_empleado, pin')
-        .eq('email', email)
+        .eq('email', emailNormalizado)
         .single();
 
       if (!empError && empleado && empleado.pin === password) {
-        localStorage.setItem('usuario-supabase', email);
-        setUsuario({ email, rol: empleado.tipo_empleado });
+        localStorage.setItem('usuario-supabase', emailNormalizado);
+        setUsuario({ email: emailNormalizado, rol: empleado.tipo_empleado });
         await cargarPermisos(empleado.tipo_empleado);
         return { fallback: true, empleado };
       }
@@ -92,7 +94,7 @@ export const AuthProvider = ({ children }) => {
     const { data: empleado, error: empError } = await supabase
       .from('empleados')
       .select('tipo_empleado')
-      .eq('email', email)
+      .eq('email', emailNormalizado)
       .single();
 
     if (empError || !empleado) {
@@ -100,9 +102,9 @@ export const AuthProvider = ({ children }) => {
       throw new Error('No se encontró información del empleado');
     }
 
-    localStorage.setItem('usuario-supabase', email);
+    localStorage.setItem('usuario-supabase', emailNormalizado);
     setUsuario({
-      email: email,
+      email: emailNormalizado,
       rol: empleado.tipo_empleado,
     });
 
@@ -120,7 +122,7 @@ export const AuthProvider = ({ children }) => {
   // Cargar sesión al iniciar
   useEffect(() => {
     const cargarSesionInicial = async () => {
-      const usuarioGuardado = localStorage.getItem("usuario-supabase");
+      const usuarioGuardado = localStorage.getItem("usuario-supabase")?.trim().toLowerCase();
       
       if (usuarioGuardado) {
         try {

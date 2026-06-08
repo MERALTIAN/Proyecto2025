@@ -6,6 +6,7 @@ const TarjetaCategoria = ({
   categorias = [],
   abrirModalEdicion,
   abrirModalEliminacion,
+  copiarCategoria,
 }) => {
   const cargando = categorias == null;
   const [idTarjetaActiva, setIdTarjetaActiva] = useState(null);
@@ -103,6 +104,17 @@ const TarjetaCategoria = ({
                       className="d-flex align-items-center gap-2"
                       onClick={(e) => e.stopPropagation()}
                     >
+                      <Button
+                        variant="outline-success"
+                        size="sm"
+                        onClick={() => {
+                          copiarCategoria(categoria);
+                          setIdTarjetaActiva(null);
+                        }}
+                      >
+                        <i className="bi bi-clipboard"></i>
+                      </Button>
+
                       <Button
                         variant="outline-warning"
                         size="sm"

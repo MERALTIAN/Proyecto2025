@@ -5,6 +5,7 @@ import { supabase } from "../database/supabaseconfig";
 import ModalRegistroProducto from "../producto/ModalRegistroProducto";
 import ModalEdicionProducto from "../producto/ModalEdicionProducto";
 import ModalEliminacionProducto from "../producto/ModalEliminacionProducto";
+import ModalQRProducto from "../producto/ModalQRProducto";
 import TarjetasProductos from "../producto/TarjetasProductos";
 import TablaProductos from "../producto/TablaProductos";
 
@@ -25,6 +26,7 @@ const Productos = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
   const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
+  const [mostrarModalQR, setMostrarModalQR] = useState(false);
 
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre_producto: "",
@@ -45,12 +47,54 @@ const Productos = () => {
   });
 
   const [productoEliminar, setProductoEliminar] = useState(null);
+  const [productoQR, setProductoQR] = useState(null);
 
   const [toast, setToast] = useState({
     mostrar: false,
     mensaje: "",
     tipo: "",
   });
+
+  // --- NUEVA FUNCIÓN: COPIAR PRODUCTO ---
+  const copiarProducto = async (producto) => {
+    const texto = `
+ID: ${producto.id_Producto}
+Nombre: ${producto.nombre_producto}
+Descripción: ${producto.descripcion_producto || "Sin descripción"}
+Precio: $${producto.precio_venta}
+Categoría: ${obtenerNombreCategoria(producto.id_Categoria)}
+    `;
+
+    try {
+      await navigator.clipboard.writeText(texto);
+      setToast({
+        mostrar: true,
+        mensaje: "✅ Producto copiado al portapapeles",
+        tipo: "exito",
+      });
+      setTimeout(() => setToast({ ...toast, mostrar: false }), 2000);
+    } catch (error) {
+      console.error("Error al copiar:", error);
+      setToast({
+        mostrar: true,
+        mensaje: "❌ Error al copiar el producto",
+        tipo: "error",
+      });
+      setTimeout(() => setToast({ ...toast, mostrar: false }), 2000);
+    }
+  };
+
+  // --- NUEVA FUNCIÓN: GENERAR QR ---
+  const generarQRImagen = (producto) => {
+    setProductoQR(producto);
+    setMostrarModalQR(true);
+  };
+
+  // --- FUNCIÓN AUXILIAR: OBTENER NOMBRE DE CATEGORÍA ---
+  const obtenerNombreCategoria = (idCategoria) => {
+    const categoria = categorias.find((cat) => cat.id_Categoria === idCategoria);
+    return categoria ? categoria.nombre_categoria : "Sin categoría";
+  };
 
   const cargarProductos = async () => {
     try {
@@ -449,6 +493,8 @@ const Productos = () => {
                       categorias={categorias}
                       abrirModalEdicion={abrirModalEdicion}
                       abrirModalEliminacion={abrirModalEliminacion}
+                      copiarProducto={copiarProducto}
+                      generarQRImagen={generarQRImagen}
                     />
                   </div>
                 </Col>
@@ -460,6 +506,8 @@ const Productos = () => {
                       categorias={categorias}
                       abrirModalEdicion={abrirModalEdicion}
                       abrirModalEliminacion={abrirModalEliminacion}
+                      copiarProducto={copiarProducto}
+                      generarQRImagen={generarQRImagen}
                     />
                   </div>
                 </Col>
@@ -513,6 +561,12 @@ const Productos = () => {
         setMostrarModalEliminacion={setMostrarModalEliminacion}
         eliminarProducto={eliminarProducto}
         producto={productoEliminar}
+      />
+
+      <ModalQRProducto
+        mostrar={mostrarModalQR}
+        producto={productoQR}
+        onCerrar={() => setMostrarModalQR(false)}
       />
 
       <NotificacionOperacion

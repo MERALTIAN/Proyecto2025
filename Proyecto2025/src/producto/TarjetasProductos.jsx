@@ -7,6 +7,8 @@ const TarjetasProductos = ({
   categorias = [],
   abrirModalEdicion,
   abrirModalEliminacion,
+  copiarProducto,
+  generarQRImagen,
 }) => {
   const cargando = productos.length === 0;
   const [idTarjetaActiva, setIdTarjetaActiva] = useState(null);
@@ -55,7 +57,6 @@ const TarjetasProductos = ({
           >
             <Card.Body className="p-1">
               <Row className="align-items-center gx-1">
-
                 {/* IMAGEN */}
                 <Col xs={3}>
                   <div
@@ -108,7 +109,7 @@ const TarjetasProductos = ({
               </Row>
             </Card.Body>
 
-            {/* OVERLAY */}
+            {/* OVERLAY DE ACCIONES */}
             {activa && (
               <div
                 className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
@@ -127,11 +128,36 @@ const TarjetasProductos = ({
                 >
                   <Button
                     size="sm"
+                    variant="info"
+                    onClick={() => {
+                      copiarProducto(producto);
+                      setIdTarjetaActiva(null);
+                    }}
+                    title="Copiar producto"
+                  >
+                    <i className="bi bi-clipboard"></i>
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="success"
+                    onClick={() => {
+                      generarQRImagen(producto);
+                      setIdTarjetaActiva(null);
+                    }}
+                    title="Generar QR"
+                  >
+                    <i className="bi bi-qr-code"></i>
+                  </Button>
+
+                  <Button
+                    size="sm"
                     variant="warning"
                     onClick={() => {
                       abrirModalEdicion(producto);
                       setIdTarjetaActiva(null);
                     }}
+                    title="Editar producto"
                   >
                     <i className="bi bi-pencil"></i>
                   </Button>
@@ -143,6 +169,7 @@ const TarjetasProductos = ({
                       abrirModalEliminacion(producto);
                       setIdTarjetaActiva(null);
                     }}
+                    title="Eliminar producto"
                   >
                     <i className="bi bi-trash"></i>
                   </Button>

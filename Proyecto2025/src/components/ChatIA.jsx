@@ -7,9 +7,10 @@ const ChatIA = ({ mostrar, onCerrar }) => {
   const [mensajes, setMensajes] = useState([]);
   const [entrada, setEntrada] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [sqlGenerado, setSqlGenerado] = useState('');
   const finChatRef = useRef(null);
 
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY?.trim();
 
   const contextoBaseDatos = `
   Sistema de ventas.
@@ -29,22 +30,26 @@ const ChatIA = ({ mostrar, onCerrar }) => {
     setMensajes(prev => [...prev, mensajeUsuario]);
     const consultaActual = entrada;
     setEntrada('');
+    setSqlGenerado('');
     setCargando(true);
 
     try {
-      const modelo = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      if (!apiKey) {
+        throw new Error('Falta la clave VITE_GEMINI_API_KEY en .env');
+      }
+
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const modelo = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', temperature: 0.2 });
 
       const prompt = `
       Eres un experto en PostgreSQL. Genera una consulta SQL válida.
       ${contextoBaseDatos}
 
-      Reglas estrictas:
-      - Comprende el lenguaje natural del usuario y corrige errores de redacción o gramática.
-      - Solo devuelve consultas SELECT.
-      - NO uses punto y coma (;) al final.
-      - NO uses markdown, ni sql, ni explicaciones fuera del JSON.
-      - Usa alias claros cuando hagas JOIN.
-      - Devuelve SOLO el siguiente JSON, nada más:
+      Instrucciones:
+      - Sólo genera consultas SELECT.
+      - No agregues punto y coma al final.
+      - No uses markdown ni explicaciones fuera del JSON.
+      - Devuelve sólo este JSON:
 
       {
         "explicacion": "Explicación breve y clara",
@@ -55,8 +60,9 @@ const ChatIA = ({ mostrar, onCerrar }) => {
       Consulta del usuario: "${consultaActual}"
       `;
 
-      const resultado = await modelo.generateContent(prompt);
-      let texto = resultado.response.text().trim();
+      const resultado = await modelo.generateContent({ contents: [prompt], maxOutputTokens: 512 });
+      let texto = await resultado.response.text();
+      texto = (texto || '').trim();
 
       texto = texto.replace(/```[\s\S]*?```/g, '').trim();
 
@@ -69,6 +75,7 @@ const ChatIA = ({ mostrar, onCerrar }) => {
       sqlLimpio = sqlLimpio.replace(/;\s*$/, '');
       sqlLimpio = sqlLimpio.replace(/\)\s*\)/g, ')');
       sqlLimpio = sqlLimpio.replace(/,\s*\)/g, ')');
+      setSqlGenerado(sqlLimpio);
 
       const { data, error } = await supabase.rpc('ejecutar_consulta_segura', {
         query_sql: sqlLimpio
@@ -91,9 +98,10 @@ const ChatIA = ({ mostrar, onCerrar }) => {
       setMensajes(prev => [...prev, mensajeRespuesta]);
     } catch (error) {
       console.error('Error completo:', error);
+      const detalle = error?.message || String(error);
       setMensajes(prev => [...prev, {
         tipo: 'ia',
-        explicacion: 'No entendí bien tu consulta. Por favor, reformúlala de forma clara.',
+        explicacion: `Ocurrió un error al procesar la consulta: ${detalle}`,
         error: true
       }]);
     }
@@ -112,6 +120,11 @@ const ChatIA = ({ mostrar, onCerrar }) => {
       </Modal.Header>
       <Modal.Body style={{ height: '68vh', overflowY: 'auto' }}>
         <div className="d-flex flex-column h-100">
+          {!apiKey && (
+            <div className="alert alert-warning mb-3" role="alert">
+              Falta configurar la clave Gemini. Agrega <code>VITE_GEMINI_API_KEY</code> a tu <code>.env</code>.
+            </div>
+          )}
           <div className="flex-grow-1 overflow-auto mb-3 pe-2">
             {mensajes.length === 0 && (
               <div className="text-center text-muted mt-5">
@@ -160,6 +173,11 @@ const ChatIA = ({ mostrar, onCerrar }) => {
               </div>
             ))}
 
+            {sqlGenerado && (
+              <div className="alert alert-secondary small mt-2">
+                <strong>SQL generado:</strong> {sqlGenerado}
+              </div>
+            )}
             {cargando && (
               <div className="text-center py-3">
                 <Spinner animation="border" size="sm" /> Procesando consulta...
@@ -174,9 +192,9 @@ const ChatIA = ({ mostrar, onCerrar }) => {
                 value={entrada}
                 onChange={(e) => setEntrada(e.target.value)}
                 placeholder="Escribe tu consulta en lenguaje natural..."
-                disabled={cargando}
+                disabled={!apiKey || cargando}
               />
-              <Button variant="primary" onClick={enviarConsulta} disabled={cargando || !entrada.trim()}>
+              <Button variant="primary" onClick={enviarConsulta} disabled={!apiKey || cargando || !entrada.trim()}>
                 Enviar
               </Button>
             </div>

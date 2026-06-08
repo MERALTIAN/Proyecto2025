@@ -6,7 +6,8 @@ const TablaCategorias = ({
   categorias = [],
   abrirModalEdicion,
   abrirModalEliminacion,
-  generarPDFCategoria
+  generarPDFCategoria,
+  copiarCategoria
 }) => {
   const loading = categorias == null;
 
@@ -32,9 +33,20 @@ const TablaCategorias = ({
               <tr key={categoria.id_Categoria ?? categoria.id_categoria}>
                 <td>{categoria.id_Categoria ?? categoria.id_categoria}</td>
                 <td>{categoria.nombre_categoria}</td>
-                <td className="d-none d-md-table-cell">{categoria.descripcion_categoria}</td>
+                <td className="d-none d-md-table-cell">
+                  {categoria.descripcion_categoria}
+                </td>
                 <td className="text-center">
                   <div className="d-flex justify-content-center flex-wrap">
+                    <Button
+                      variant="outline-success"
+                      size="sm"
+                      className="me-1"
+                      onClick={() => copiarCategoria(categoria)}
+                    >
+                      <i className="bi bi-clipboard"></i>
+                    </Button>
+
                     <Button
                       variant="outline-warning"
                       size="sm"
@@ -43,6 +55,7 @@ const TablaCategorias = ({
                     >
                       <i className="bi bi-pencil"></i>
                     </Button>
+
                     <Button
                       variant="outline-danger"
                       size="sm"
@@ -52,6 +65,7 @@ const TablaCategorias = ({
                       <i className="bi bi-trash"></i>
                     </Button>
                   </div>
+
                   <Button
                     variant="outline-primary"
                     size="sm"
