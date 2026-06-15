@@ -8,6 +8,7 @@ import Empleados from "./views/Empleados";
 import Permisos from "./views/Permisos";
 import Clientes from "./views/Clientes";
 import Ventas from "./views/Ventas";
+import ReportesAdminView from "./views/ReportesAdminView";
 import Pagina404 from "./views/Pagina404";
 import Encabezado from "./navegacion/Encabezado";
 import RutaProtegida from "./rutas/RutaProtegida";
@@ -75,6 +76,14 @@ function App() {
           }
         />
         {/* NUEVA RUTA */}
+        <Route
+          path="/reportes"
+          element={
+            <RutaProtegida>
+              <ReportesAdminView />
+            </RutaProtegida>
+          }
+        />
         <Route
           path="/permisos"
           element={

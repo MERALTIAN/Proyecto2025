@@ -8,19 +8,22 @@ const AuthContext = createContext();
 const DEV_BYPASS_AUTH = false;
 const DEV_USER = { email: 'dev@local', rol: 'administrador' };
 
+const PERMISOS_ADMIN = {
+  ver_inicio: true,
+  ver_catalogo: true,
+  ver_productos: true,
+  ver_categorias: true,
+  ver_empleados: true,
+  ver_clientes: true,
+  ver_ventas: true,
+  ver_reportes: true,
+  ver_permisos: true,
+  administrar_sistema: true,
+};
+
 export const AuthProvider = ({ children }) => {
   const [usuario, setUsuario] = useState(DEV_BYPASS_AUTH ? DEV_USER : null);
-  const [permisos, setPermisos] = useState(DEV_BYPASS_AUTH ? {
-    ver_inicio: true,
-    ver_catalogo: true,
-    ver_productos: true,
-    ver_categorias: true,
-    ver_empleados: true,
-    ver_clientes: true,
-    ver_ventas: true,
-    ver_permisos: true,
-    administrar_sistema: true,
-  } : {});
+  const [permisos, setPermisos] = useState(DEV_BYPASS_AUTH ? PERMISOS_ADMIN : {});
   const [cargando, setCargando] = useState(DEV_BYPASS_AUTH ? false : true);
 
   const cargarPermisos = async (rol) => {
@@ -39,7 +42,8 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    setPermisos(data?.permisos || {});
+    const loadedPermisos = data?.permisos || {};
+    setPermisos(rol === 'administrador' ? { ...PERMISOS_ADMIN, ...loadedPermisos } : loadedPermisos);
   };
 
   const login = async (email, password) => {
@@ -57,6 +61,7 @@ export const AuthProvider = ({ children }) => {
         ver_empleados: true,
         ver_clientes: true,
         ver_ventas: true,
+        ver_reportes: true,
         ver_permisos: true,
         administrar_sistema: true,
       });
